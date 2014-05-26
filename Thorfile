@@ -41,7 +41,7 @@ class NaverTasks < Thor
     1.upto(page_length) do |page_index|
       list_page_url = url + '?page=' + page_index.to_s
       html = Nokogiri::HTML(open(list_page_url).read, list_page_url)
-      html.css('div.LyMain a[data-na="NL:image_end"]').each_with_index do |node, index|
+      html.css('div.LyMain a[data-na="NL:image_end"]').each do |node|
         # 画像URLを取得
         image_page_url = node.attribute('href').value
 
@@ -50,7 +50,7 @@ class NaverTasks < Thor
         large_image_url = image_html.css('div.LyMain a[target="_blank"]')[0].attribute('href').value
         p large_image_url
 
-        image_file_name = name + '_' + (index + 1).to_s.rjust(3, '0') + File.extname(large_image_url)
+        image_file_name = name + '_' + image_index.to_s.rjust(3, '0') + File.extname(large_image_url)
         image_file_path = output_dir + image_file_name
 
         # 画像を保存
