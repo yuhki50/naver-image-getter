@@ -15,10 +15,10 @@ class NaverTasks < Thor
   option :name, :type => :string, :default => ''
   option :output, :default => '.'
   def get_image()
-    url = options['url']
+    url = options['url'].gsub(/\?.+$/, '')
 
     # htmlを取得
-    html = Nokogiri::HTML(open(url).read, url.gsub(/\?.+$/, ''))
+    html = Nokogiri::HTML(open(url).read, url)
 
     # 保存名を取得
     if options['name'] == '' then
@@ -40,6 +40,8 @@ class NaverTasks < Thor
 
     1.upto(page_length) do |page_index|
       list_page_url = url + '?page=' + page_index.to_s
+      p list_page_url
+
       html = Nokogiri::HTML(open(list_page_url).read, list_page_url)
       html.css('div.LyMain a[data-na="NL:image_end"]').each do |node|
         # 画像URLを取得
@@ -54,12 +56,16 @@ class NaverTasks < Thor
         image_file_path = output_dir + image_file_name
 
         # 画像を保存
-        open(image_file_path.to_s, 'wb') do |saved_file|
-          open(large_image_url, 'rb') do |read_file|
-            saved_file.write(read_file.read)
+        begin
+          open(image_file_path.to_s, 'wb') do |saved_file|
+            open(large_image_url, 'rb') do |read_file|
+              saved_file.write(read_file.read)
+            end
           end
+          image_index += 1
+        rescue Exception
+
         end
-        image_index += 1
       end
     end
   end
